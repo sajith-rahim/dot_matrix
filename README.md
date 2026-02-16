@@ -97,6 +97,8 @@ The script generates a PDF file in the same directory as the input file (unless 
 -   **CSV files**: Rendered as a fixed-width table.
 -   **TXT files**: Rendered as plain text lines.
 
+![Example Output](./test_data/dot_matrix_sample.png)
+
 ## License
 
 MIT
