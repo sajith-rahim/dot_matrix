@@ -10,7 +10,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 def draw_header_box(c, x, y, width, height, doc_id, date_str, title, desc, tag, author, header_text, page_num, total_pages, font_name, font_size):
     # Colors and line settings
-    c.setStrokeColorRGB(0.8, 0.8, 0.8) # Light gray for lines
+    # c.setStrokeColorRGB(0.8, 0.8, 0.8) # Light gray for lines (vintage look)
     c.setStrokeColorRGB(0, 0, 0)
     c.setFillColorRGB(0, 0, 0)
     c.setLineWidth(1)
@@ -448,5 +448,7 @@ if __name__ == "__main__":
     ext = os.path.splitext(args.input_file)[1].lower()
     if ext == '.txt':
         convert_txt_to_pdf(args.input_file, output_pdf, args.font, args.font_size, args.orientation, args.pagesize, doc_args)
-    else:
+    elif ext == '.csv':
         convert_csv_to_pdf(args.input_file, output_pdf, args.font, args.font_size, args.orientation, args.pagesize, doc_args)
+    else:
+        print(f"Error: Unsupported file type '{ext}'.")
