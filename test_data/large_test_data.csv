@@ -1,0 +1,11 @@
+ID,FirstName,LastName,Email,Phone,Department,Role,JoinDate,Salary,Manager,Project,Office,Status,Performance,Notes
+1001,John,Doe,john.doe@example.com,555-0101,Engineering,Developer,2023-01-15,85000,Sarah Connor,Phoenix,New York,Active,High,Promoted
+1002,Jane,Smith,jane.smith@example.com,555-0102,Marketing,Designer,2023-02-20,72000,John Rambo,Apollo,London,Active,Medium,Remote
+1003,Bob,Johnson,bob.j@example.com,555-0103,Sales,Manager,2022-11-05,95000,Rocky Balboa,Titan,Chicago,OnLeave,High,Urgent
+1004,Alice,Brown,alice.b@example.com,555-0104,HR,Specialist,2023-03-10,65000,Ellen Ripley,Nostromo,Seattle,Active,Medium,New Hire
+1005,Charlie,Davis,charlie.d@example.com,555-0105,Finance,Analyst,2022-08-12,78000,Gordon Gekko,WallSt,Boston,Active,Low,Review
+1006,Eve,Wilson,eve.w@example.com,555-0106,Legal,Counsel,2023-04-22,110000,Atticus Finch,Mockingbird,DC,Active,High,Contract
+1007,Frank,Miller,frank.m@example.com,555-0107,IT,Admin,2022-12-01,70000,Neo,Matrix,Austin,Active,Medium,Incidents
+1008,Grace,Taylor,grace.t@example.com,555-0108,Ops,Coordinator,2023-05-15,60000,Furiosa,Citadel,Denver,Resigned,N/A,Exit
+1009,Henry,White,henry.w@example.com,555-0109,Product,Owner,2022-10-30,105000,Steve Jobs,Apple,SF,Active,High,Launch
+1010,Ivy,Green,ivy.g@example.com,555-0110,Support,Lead,2023-01-05,68000,IT Crowd,Basement,London,Active,Medium,Tickets
