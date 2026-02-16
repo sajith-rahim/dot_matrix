@@ -1,0 +1,53 @@
+This is line 1 of the text file.
+This is line 2, which is a bit longer to see how it looks.
+Line 3.
+Line 4.
+Line 5.
+--------------------------------------------------
+Section Break
+--------------------------------------------------
+Here is some more text.
+It should just flow line by line.
+No columns here.
+Just plain text content.
+End of file.
+Here is some more text.
+It should just flow line by line.
+No columns here.
+Just plain text content.
+End of file.
+Here is some more text.
+It should just flow line by line.
+No columns here.
+Just plain text content.
+End of file.
+Here is some more text.
+It should just flow line by line.
+No columns here.
+Just plain text content.
+End of file.
+Here is some more text.
+It should just flow line by line.
+No columns here.
+Just plain text content.
+End of file.
+Here is some more text.
+It should just flow line by line.
+No columns here.
+Just plain text content.
+End of file.
+Here is some more text.
+It should just flow line by line.
+No columns here.
+Just plain text content.
+End of file.
+Here is some more text.
+It should just flow line by line.
+No columns here.
+Just plain text content.
+End of file.
+Here is some more text.
+It should just flow line by line.
+No columns here.
+Just plain text content.
+End of file.
