@@ -1,6 +1,9 @@
 # Dot Matrix PDF
 A Python utility to convert CSV and TXT files into PDFs with a "Dot Matrix" visual style. It mimics the look of old printer output, complete with a customizable header box, page numbering, and styled column headers for tabular data.
 
+Inspired by Andrew Schmelyun's project ***Getting my daily news from a dot matrix printer***
+https://aschmelyun.com/blog/getting-my-daily-news-from-a-dot-matrix-printer/
+
 ## Features
 
 ```
