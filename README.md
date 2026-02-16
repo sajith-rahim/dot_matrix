@@ -86,6 +86,10 @@ python dot_matrix.py data.csv --title "SALES REPORT" --header "Q1 FY2026" --doc-
 python dot_matrix.py notes.txt --title "MEETING NOTES" --header "INTERNAL ONLY" --author "Jane Doe"
 ```
 
+## Font
+ Doto : https://fonts.google.com/specimen/Doto
+ License: https://fonts.google.com/specimen/Doto/license
+
 ## Output
 
 The script generates a PDF file in the same directory as the input file (unless `--output` is specified).
