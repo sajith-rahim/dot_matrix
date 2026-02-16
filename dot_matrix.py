@@ -122,7 +122,7 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
     page_content_height = height - (2 * user_margin_y)
     
     try:
-        with open(input_csv, 'r', newline='', encoding='utf-8') as f:
+        with open(input_csv, 'r', newline='', encoding='utf-8-sig') as f:
             reader = csv.reader(f)
             rows = list(reader)
     except FileNotFoundError:
@@ -325,7 +325,7 @@ def convert_txt_to_pdf(input_txt, output_pdf, font_path, font_size, doc_args):
     user_margin_y = 30
     
     try:
-        with open(input_txt, 'r', encoding='utf-8') as f:
+        with open(input_txt, 'r', encoding='utf-8-sig') as f:
             lines = [line.rstrip() for line in f.readlines()]
     except FileNotFoundError:
         print(f"Error: Input file '{input_txt}' not found.")
