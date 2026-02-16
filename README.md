@@ -1,8 +1,21 @@
-# Dot Matrix PDF Converter
-
+# Dot Matrix PDF
 A Python utility to convert CSV and TXT files into PDFs with a "Dot Matrix" visual style. It mimics the look of old printer output, complete with a customizable header box, page numbering, and styled column headers for tabular data.
 
 ## Features
+
+```
+                                     ┌───────────────────────────────────────────────────────────┐                                   
+                                     │DOC ID : <DOCUMENT-ID>                      16 - 02 - 2026 │                                   
+┌────────────────────────────────────└───────────────────────────────────────────────────────────┘──────────────────────────────────┐
+│                                                                                                                                   │
+│ <TITLE>                                                                                                   TAG: <TAG>              │
+│                                                                                                                                   │
+│ <DESCRIPTION>                                                                                                                     │
+│                                                                                                                                   │
+│                                                                                                                                   │
+└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘                                                                                                                                                                                
+────HEADER──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+```
 
 -   **Format Support**: Handles both `.csv` (Table format) and `.txt` (Plain text) files.
 -   **Header Box**: Customizable header with Title, Description, Doc ID, Date, Tag, and Author.
