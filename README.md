@@ -73,6 +73,7 @@ python dot_matrix.py <input_file> [options]
 | `--author` | Author Name (below Tag). | "" |
 | `--font` | Path to TTF font file. | `Doto.ttf` |
 | `--font-size` | Font size of the content. | 10 |
+| `--orientation` | Page orientation (`landscape` or `portrait`). | `landscape` |
 
 ### Examples
 

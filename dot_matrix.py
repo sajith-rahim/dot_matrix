@@ -3,7 +3,7 @@ import argparse
 import os
 import uuid
 import datetime
-from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.pagesizes import A4, landscape, portrait
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -21,7 +21,7 @@ def draw_header_box(c, x, y, width, height, doc_id, date_str, title, desc, tag, 
     
     # Draw Title (Inside Box)
     c.setFont(font_name, font_size + 4)
-    c.drawString(x + 10, box_top - 20, title)
+    c.drawString(x + 10, box_top - 25, title)
     
     # Draw Description
     c.setFont(font_name, font_size)
@@ -29,7 +29,7 @@ def draw_header_box(c, x, y, width, height, doc_id, date_str, title, desc, tag, 
     
     # Draw Tag
     tag_str = f"{tag}"
-    c.drawRightString(x + width - 10, box_top - 20, tag_str)
+    c.drawRightString(x + width - 10, box_top - 25, tag_str)
 
     # Draw author
     author_str = f"AUTHOR: {author}"
@@ -95,7 +95,7 @@ def draw_header_box(c, x, y, width, height, doc_id, date_str, title, desc, tag, 
 
     return sep_y - 20
 
-def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
+def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, orientation, doc_args):
     # Register font
     font_name = 'CustomFont'
     try:
@@ -109,8 +109,14 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
         print(f"Error loading font: {e}. Using Courier.")
         font_name = 'Courier'
 
-    c = canvas.Canvas(output_pdf, pagesize=landscape(A4))
-    width, height = landscape(A4)
+    if orientation.lower() == 'portrait':
+        pagesize = portrait(A4)
+        width, height = portrait(A4)
+    else:
+        pagesize = landscape(A4)
+        width, height = landscape(A4)
+
+    c = canvas.Canvas(output_pdf, pagesize=pagesize)
     
     # Setup
     c.setFont(font_name, font_size)
@@ -301,7 +307,7 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
     c.save()
     print(f"PDF generated: {output_pdf}")
 
-def convert_txt_to_pdf(input_txt, output_pdf, font_path, font_size, doc_args):
+def convert_txt_to_pdf(input_txt, output_pdf, font_path, font_size, orientation, doc_args):
     # Register font
     font_name = 'CustomFont'
     try:
@@ -315,8 +321,14 @@ def convert_txt_to_pdf(input_txt, output_pdf, font_path, font_size, doc_args):
         print(f"Error loading font: {e}. Using Courier.")
         font_name = 'Courier'
 
-    c = canvas.Canvas(output_pdf, pagesize=landscape(A4))
-    width, height = landscape(A4)
+    if orientation.lower() == 'portrait':
+        pagesize = portrait(A4)
+        width, height = portrait(A4)
+    else:
+        pagesize = landscape(A4)
+        width, height = landscape(A4)
+
+    c = canvas.Canvas(output_pdf, pagesize=pagesize)
     
     # Setup
     c.setFont(font_name, font_size)
@@ -406,6 +418,7 @@ if __name__ == "__main__":
     parser.add_argument("--author", default="", help="Author")
     parser.add_argument("--header", default="", help="Header Text (below box)")
     parser.add_argument("--title", default="REPORT", help="Title (inside box)")
+    parser.add_argument("--orientation", default="landscape", choices=["landscape", "portrait"], help="Page orientation (landscape/portrait)")
     
     args = parser.parse_args()
 
@@ -425,6 +438,6 @@ if __name__ == "__main__":
     
     ext = os.path.splitext(args.input_file)[1].lower()
     if ext == '.txt':
-        convert_txt_to_pdf(args.input_file, output_pdf, args.font, args.font_size, doc_args)
+        convert_txt_to_pdf(args.input_file, output_pdf, args.font, args.font_size, args.orientation, doc_args)
     else:
-        convert_csv_to_pdf(args.input_file, output_pdf, args.font, args.font_size, doc_args)
+        convert_csv_to_pdf(args.input_file, output_pdf, args.font, args.font_size, args.orientation, doc_args)
