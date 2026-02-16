@@ -301,9 +301,100 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
     c.save()
     print(f"PDF generated: {output_pdf}")
 
+def convert_txt_to_pdf(input_txt, output_pdf, font_path, font_size, doc_args):
+    # Register font
+    font_name = 'CustomFont'
+    try:
+        if font_path and os.path.exists(font_path):
+            pdfmetrics.registerFont(TTFont(font_name, font_path))
+            print(f"Using custom font: {font_path}")
+        else:
+            font_name = 'Courier'
+            print(f"Custom font not found at {font_path}. Using Courier.")
+    except Exception as e:
+        print(f"Error loading font: {e}. Using Courier.")
+        font_name = 'Courier'
+
+    c = canvas.Canvas(output_pdf, pagesize=landscape(A4))
+    width, height = landscape(A4)
+    
+    # Setup
+    c.setFont(font_name, font_size)
+    line_height = font_size * 1.5
+    margin_x = 30
+    user_margin_y = 30
+    
+    try:
+        with open(input_txt, 'r', encoding='utf-8') as f:
+            lines = [line.rstrip() for line in f.readlines()]
+    except FileNotFoundError:
+        print(f"Error: Input file '{input_txt}' not found.")
+        return
+
+    if not lines:
+        print("TXT file is empty.")
+        return
+
+    # Header calculations
+    header_height = 60
+    header_total_height = header_height + 20 # 20 is the separator margin
+    # No column headers for TXT
+    available_height = height - (2 * user_margin_y) - header_total_height
+    
+    max_lines_per_page = int(available_height / line_height)
+    if max_lines_per_page <= 0:
+         print("Error: No space for content.")
+         return
+
+    total_lines = len(lines)
+    import math
+    total_pages = math.ceil(total_lines / max_lines_per_page)
+    if total_pages == 0: total_pages = 1
+    
+    # Doc ID generation
+    doc_id = doc_args.get('doc_id')
+    if not doc_id:
+        doc_id = str(uuid.uuid4()).split('-')[0].upper()
+        
+    date_str = datetime.date.today().strftime("%d-%m-%Y")
+    
+    page_num = 1
+    
+    def setup_page(canvas_obj, y_start, p_num, t_pages):
+        # Draw Main Header Box
+        new_y = draw_header_box(canvas_obj, margin_x, y_start, width - 2 * margin_x, header_height,
+                                doc_id, date_str, 
+                                doc_args.get('title', 'Untitled'), 
+                                doc_args.get('description', ''), 
+                                doc_args.get('tag', ''), 
+                                doc_args.get('author', ''),
+                                doc_args.get('header', ''),
+                                p_num, t_pages,
+                                font_name, font_size)
+        return new_y # Return Y where content starts (no column headers)
+        
+    y = setup_page(c, height - user_margin_y, page_num, total_pages)
+    
+    lines_on_page = 0
+    
+    for line in lines:
+        if lines_on_page >= max_lines_per_page:
+            c.showPage()
+            c.setFont(font_name, font_size)
+            page_num += 1
+            y = setup_page(c, height - user_margin_y, page_num, total_pages)
+            lines_on_page = 0
+            
+        c.drawString(margin_x, y, line)
+        y -= line_height
+        lines_on_page += 1
+        
+    c.save()
+    print(f"PDF generated: {output_pdf}")
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Convert CSV to Dot Matrix PDF")
-    parser.add_argument("input_csv", help="Path to input CSV file")
+    parser = argparse.ArgumentParser(description="Convert CSV/TXT to Dot Matrix PDF")
+    parser.add_argument("input_file", help="Path to input CSV or TXT file")
     parser.add_argument("--output", help="Path to output PDF file (default: same name/location as input)")
     parser.add_argument("--font", default="Doto.ttf", help="Path to TTF font file")
     parser.add_argument("--font-size", type=int, default=10, help="Font size")
@@ -320,7 +411,7 @@ if __name__ == "__main__":
 
     output_pdf = args.output
     if not output_pdf:
-        input_base = os.path.splitext(args.input_csv)[0]
+        input_base = os.path.splitext(args.input_file)[0]
         output_pdf = f"{input_base}.pdf"
     
     doc_args = {
@@ -332,4 +423,8 @@ if __name__ == "__main__":
         'title': args.title
     }
     
-    convert_csv_to_pdf(args.input_csv, output_pdf, args.font, args.font_size, doc_args)
+    ext = os.path.splitext(args.input_file)[1].lower()
+    if ext == '.txt':
+        convert_txt_to_pdf(args.input_file, output_pdf, args.font, args.font_size, doc_args)
+    else:
+        convert_csv_to_pdf(args.input_file, output_pdf, args.font, args.font_size, doc_args)
