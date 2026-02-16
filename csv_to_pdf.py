@@ -165,34 +165,32 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
     # Start loop
     # We need to handle pagination manually
     
-    # Pre-calculate data lines to know logic
-    # We need to know the height available for content on each page.
-    # Header is drawn on every page.
+    # Extract headers
+    headers = []
+    if rows:
+        headers = rows.pop(0) # Remove header from data rows
+        # Recalculate cols? No, col_widths calculated from all rows including header is better?
+        # Actually I already calculated col_widths including header row in the loop above.
+        # But now I popped it.
+        # It's fine, col_widths is already computed.
     
-    header_height = 60
-    # Effective content height per page
-    # First page and subsequent pages have the same header
-    # Line height
+    # Calculate available height again because headers take space
+    # Header box + separator + Column Headers + Underline
+    # Let's say Column Headers take line_height + 5 padding.
     
-    # Calculate max lines per page
-    # content_start_y (approx) = height - user_margin_y - header_height - 20 (separator margin)
-    # We need to call draw_header_box blindly to know the exact sep_y? 
-    # Or just use the math: sep_y = (y - header_height) - 20. 
-    # So used height = header_height + 20.
-    # content_y_start = height - user_margin_y - header_height - 20.
-    
-    header_total_height = header_height + 20 # 20 is the separator margin
+    col_header_height = line_height + 5
+    header_total_height = header_height + 20 + col_header_height
     available_height = height - (2 * user_margin_y) - header_total_height
     
     max_lines_per_page = int(available_height / line_height)
-    
     if max_lines_per_page <= 0:
-        print("Error: Header too tall or page too small for any content.")
-        return
+         print("Error: No space for content.")
+         return
 
     total_rows = len(rows)
     import math
     total_pages = math.ceil(total_rows / max_lines_per_page)
+    if total_pages == 0: total_pages = 1 # Handle empty data case
     
     # Doc ID generation
     doc_id = doc_args.get('doc_id')
@@ -204,7 +202,7 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
     page_num = 1
     
     def setup_page(canvas_obj, y_start, p_num, t_pages):
-        # Draw Header
+        # Draw Main Header Box
         new_y = draw_header_box(canvas_obj, margin_x, y_start, width - 2 * margin_x, header_height,
                                 doc_id, date_str, 
                                 doc_args.get('title', 'Untitled'), 
@@ -214,7 +212,64 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
                                 doc_args.get('header', ''),
                                 p_num, t_pages,
                                 font_name, font_size)
-        return new_y
+                                
+        # Draw Column Headers
+        # new_y is where content *could* start, but we want headers there.
+        # draw_header_box returns "sep_y - 20".
+        # Let's draw headers at new_y. (which is top of content area)
+        
+        header_y = new_y
+        
+        # Construct header string
+        header_line_str = ""
+        # We need to draw each header cell to handle bold/underline individually if needed,
+        # but for fixed width CSV feel, constructing a string is easier for alignment.
+        # But user wants "Underlined". A single line under the whole header row?
+        # Or under each word? "Add the column names... and make them bold and underlined"
+        # Usually means the whole header row text.
+        
+        c.setFont(font_name, font_size)
+        # Simulate Bold by drawing twice with slight offset
+        # c.setTextRenderMode(2) # method not found on Canvas
+        
+        current_x = margin_x
+        
+        # We need to match the alignment of the data.
+        # Data loop uses:
+        # line_str += f"{cell:<{width_chars}}"
+        # We should replicate this construction or draw cell by cell.
+        
+        header_str = ""
+        for i, h_cell in enumerate(headers):
+             padding = 2
+             if i < len(col_widths):
+                 width_chars = col_widths[i] + padding
+                 header_str += f"{h_cell.upper():<{width_chars}}" # Make it Uppercase for style? User said "bold and underlined".
+             else:
+                 header_str += f"{h_cell.upper()}  "
+        
+        # Draw bold (offset)
+        c.setFillColorRGB(0,0,0)
+        c.drawString(margin_x, header_y, header_str)
+        c.drawString(margin_x + 0.5, header_y, header_str) # Offset X
+        
+        # Reset text mode (not needed if we didn't change it)
+        
+        # Draw Underline
+        # Under the text.
+        underline_y = header_y - 2
+        text_width = c.stringWidth(header_str, font_name, font_size)
+        c.setLineWidth(1)
+        c.line(margin_x, underline_y, margin_x + text_width, underline_y)
+        
+        # Draw Underline
+        # Under the text.
+        underline_y = header_y - 2
+        text_width = c.stringWidth(header_str, font_name, font_size)
+        c.setLineWidth(1)
+        c.line(margin_x, underline_y, margin_x + text_width, underline_y)
+        
+        return header_y - col_header_height
         
     y = setup_page(c, height - user_margin_y, page_num, total_pages)
     
