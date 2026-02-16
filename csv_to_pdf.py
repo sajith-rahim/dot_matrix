@@ -8,7 +8,7 @@ from reportlab.pdfgen import canvas
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-def draw_header_box(c, x, y, width, height, doc_id, date_str, title, desc, tag, author, header_text, font_name, font_size):
+def draw_header_box(c, x, y, width, height, doc_id, date_str, title, desc, tag, author, header_text, page_num, total_pages, font_name, font_size):
     # Colors and line settings
     c.setStrokeColorRGB(0.8, 0.8, 0.8) # Light gray for lines
     c.setStrokeColorRGB(0, 0, 0)
@@ -75,19 +75,23 @@ def draw_header_box(c, x, y, width, height, doc_id, date_str, title, desc, tag, 
     if header_text:
         c.setFont(font_name, font_size)
         h_width = c.stringWidth(header_text, font_name, font_size)
-        h_x = x + 20 # Left aligned as per previous code? Or centered?
-        # Previous code: c.drawString(x + 20, sep_y - 4, " HEADING ")
-        # Let's stick to that style (clearing line) if it overlaps, 
-        # or just draw it.
-        # Let's clear background to be safe if it's on the line.
-        # But wait, previous code drew " HEADING " literally.
-        # Let's draw the user provided header_text.
         
         # To match the "---- HEADING ----" look:
         c.setFillColorRGB(1, 1, 1)
         c.rect(x + 20, sep_y - 2, h_width + 10, 4, fill=1, stroke=0)
         c.setFillColorRGB(0, 0, 0)
         c.drawString(x + 25, sep_y - 4, header_text)
+
+    # Draw Page Number (Right side of header line)
+    if total_pages > 0:
+        page_str = f"({page_num}/{total_pages})"
+        c.setFont(font_name, font_size)
+        # Clear background for page number
+        p_width = c.stringWidth(page_str, font_name, font_size)
+        c.setFillColorRGB(1, 1, 1)
+        c.rect(x + width - p_width - 5, sep_y - 2, p_width + 10, 4, fill=1, stroke=0)
+        c.setFillColorRGB(0, 0, 0)
+        c.drawRightString(x + width, sep_y - 4, page_str)
 
     return sep_y - 20
 
@@ -162,6 +166,33 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
     # We need to handle pagination manually
     
     # Pre-calculate data lines to know logic
+    # We need to know the height available for content on each page.
+    # Header is drawn on every page.
+    
+    header_height = 60
+    # Effective content height per page
+    # First page and subsequent pages have the same header
+    # Line height
+    
+    # Calculate max lines per page
+    # content_start_y (approx) = height - user_margin_y - header_height - 20 (separator margin)
+    # We need to call draw_header_box blindly to know the exact sep_y? 
+    # Or just use the math: sep_y = (y - header_height) - 20. 
+    # So used height = header_height + 20.
+    # content_y_start = height - user_margin_y - header_height - 20.
+    
+    header_total_height = header_height + 20 # 20 is the separator margin
+    available_height = height - (2 * user_margin_y) - header_total_height
+    
+    max_lines_per_page = int(available_height / line_height)
+    
+    if max_lines_per_page <= 0:
+        print("Error: Header too tall or page too small for any content.")
+        return
+
+    total_rows = len(rows)
+    import math
+    total_pages = math.ceil(total_rows / max_lines_per_page)
     
     # Doc ID generation
     doc_id = doc_args.get('doc_id')
@@ -170,7 +201,9 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
         
     date_str = datetime.date.today().strftime("%d-%m-%Y")
     
-    def setup_page(canvas_obj, y_start):
+    page_num = 1
+    
+    def setup_page(canvas_obj, y_start, p_num, t_pages):
         # Draw Header
         new_y = draw_header_box(canvas_obj, margin_x, y_start, width - 2 * margin_x, header_height,
                                 doc_id, date_str, 
@@ -179,17 +212,22 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
                                 doc_args.get('tag', ''), 
                                 doc_args.get('author', ''),
                                 doc_args.get('header', ''),
+                                p_num, t_pages,
                                 font_name, font_size)
         return new_y
         
-    y = setup_page(c, height - user_margin_y)
+    y = setup_page(c, height - user_margin_y, page_num, total_pages)
+    
+    rows_on_page = 0
     
     for row in rows:
-        # Check space
-        if y < user_margin_y + line_height:
+        # Check space (or strictly use max_lines_per_page count)
+        if rows_on_page >= max_lines_per_page:
             c.showPage()
             c.setFont(font_name, font_size)
-            y = setup_page(c, height - user_margin_y)
+            page_num += 1
+            y = setup_page(c, height - user_margin_y, page_num, total_pages)
+            rows_on_page = 0
             
         # Construct line string
         line_str = ""
@@ -203,6 +241,7 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, doc_args):
         
         c.drawString(margin_x, y, line_str)
         y -= line_height
+        rows_on_page += 1
         
     c.save()
     print(f"PDF generated: {output_pdf}")
