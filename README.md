@@ -74,6 +74,7 @@ python dot_matrix.py <input_file> [options]
 | `--font` | Path to TTF font file. | `Doto.ttf` |
 | `--font-size` | Font size of the content. | 10 |
 | `--orientation` | Page orientation (`landscape` or `portrait`). | `landscape` |
+| `--pagesize` | Page size (`A3`, `A4`, `LEGAL`, `LETTER`). | `A4` |
 
 ### Examples
 
@@ -89,7 +90,11 @@ python dot_matrix.py notes.txt --title "MEETING NOTES" --header "INTERNAL ONLY" 
 
 ## Font
  Doto : https://fonts.google.com/specimen/Doto
+
  License: https://fonts.google.com/specimen/Doto/license
+
+ > Note: Some font's may not support all UTF characters. Eg: Dotto doesn't support `₹` symbol.
+ > Please ensure that the font you are using supports reqd. characters.
 
 ## Output
 
