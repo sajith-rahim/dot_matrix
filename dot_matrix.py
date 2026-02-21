@@ -95,6 +95,45 @@ def draw_header_box(c, x, y, width, height, doc_id, date_str, title, desc, tag, 
 
     return sep_y - 20
 
+def draw_watermark(c, width, height, watermark_text, font_name):
+    """Draws a watermark repeated across the page at 45 degrees."""
+    if not watermark_text:
+        return
+
+    c.saveState()
+    c.setFont(font_name, 30)
+    c.setFillColorRGB(0.9, 0.9, 0.9)  # Very light gray
+    
+    # Rotate canvas
+    c.translate(width / 2, height / 2)
+    c.rotate(45)
+    c.translate(-width / 2, -height / 2)
+    
+    # Calculate grid for watermark
+    # Since we rotated, we need to cover a larger area to ensure the page is filled
+    # Area diagonal
+    import math
+    diag = math.sqrt(width**2 + height**2)
+    
+    step_x = 200
+    step_y = 200
+    
+    # Center the gridish
+    start_x = -diag
+    end_x = diag
+    start_y = -diag
+    end_y = diag
+    
+    y = start_y
+    while y < end_y:
+        x = start_x
+        while x < end_x:
+            c.drawCentredString(x, y, watermark_text)
+            x += step_x
+        y += step_y
+        
+    c.restoreState()
+
 def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, orientation, pagesize_name, doc_args):
     # Register font
     font_name = 'CustomFont'
@@ -161,8 +200,7 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, orientation,
     # Let's draw it on every page but maybe compact? 
     # "Header should be like the attached image" -> Looks like a document header.
     # Let's draw it on the first page, and simple margins on others?
-    # Or every page. Let's do every page for now to be safe/consistent, or maybe just first.
-    # It takes a lot of space. Let's assume every page for a "form" feel, but practically first page.
+    # Or every page. Let's do every page for a "form" feel, but practically first page.
     # Let's trigger it for every page.
     
     current_line = 0
@@ -212,6 +250,9 @@ def convert_csv_to_pdf(input_csv, output_pdf, font_path, font_size, orientation,
     page_num = 1
     
     def setup_page(canvas_obj, y_start, p_num, t_pages):
+        # Draw Watermark first (background)
+        draw_watermark(canvas_obj, width, height, doc_args.get('watermark'), font_name)
+
         # Draw Main Header Box
         new_y = draw_header_box(canvas_obj, margin_x, y_start, width - 2 * margin_x, header_height,
                                 doc_id, date_str, 
@@ -381,6 +422,9 @@ def convert_txt_to_pdf(input_txt, output_pdf, font_path, font_size, orientation,
     page_num = 1
     
     def setup_page(canvas_obj, y_start, p_num, t_pages):
+        # Draw Watermark first (background)
+        draw_watermark(canvas_obj, width, height, doc_args.get('watermark'), font_name)
+
         # Draw Main Header Box
         new_y = draw_header_box(canvas_obj, margin_x, y_start, width - 2 * margin_x, header_height,
                                 doc_id, date_str, 
@@ -428,6 +472,7 @@ if __name__ == "__main__":
     parser.add_argument("--title", default="REPORT", help="Title (inside box)")
     parser.add_argument("--orientation", default="landscape", choices=["landscape", "portrait"], help="Page orientation (landscape/portrait)")
     parser.add_argument("--pagesize", default="A4", choices=["A3", "A4", "LEGAL", "LETTER"], help="Page size (default: A4)")
+    parser.add_argument("--watermark", default="", help="Watermark text")
     
     args = parser.parse_args()
 
@@ -442,7 +487,8 @@ if __name__ == "__main__":
         'tag': args.tag,
         'author': args.author,
         'header': args.header,
-        'title': args.title
+        'title': args.title,
+        'watermark': args.watermark
     }
     
     ext = os.path.splitext(args.input_file)[1].lower()
