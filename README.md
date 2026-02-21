@@ -75,6 +75,7 @@ python dot_matrix.py <input_file> [options]
 | `--font-size` | Font size of the content. | 10 |
 | `--orientation` | Page orientation (`landscape` or `portrait`). | `landscape` |
 | `--pagesize` | Page size (`A3`, `A4`, `LEGAL`, `LETTER`). | `A4` |
+| `--watermark` | Watermark text repeated across the page at 45° | "" |
 
 ### Examples
 
